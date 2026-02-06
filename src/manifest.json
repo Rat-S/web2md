@@ -20,6 +20,17 @@
         "clipboardWrite",
         "scripting"
     ],
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "browser-polyfill.min.js",
+                "contentScript/contentScript.js"
+            ]
+        }
+    ],
     "host_permissions": [
         "<all_urls>"
     ],
@@ -43,7 +54,6 @@
             "background/turndown.js",
             "background/turndown-plugin-gfm.js",
             "background/Readability.js",
-            "shared/logic.js",
             "service-worker.js"
         ]
     },

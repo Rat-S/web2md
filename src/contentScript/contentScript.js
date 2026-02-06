@@ -1,6 +1,6 @@
 function notifyExtension() {
     // send a message that the content should be clipped
-    browser.runtime.sendMessage({ type: "clip", dom: content});
+    browser.runtime.sendMessage({ type: "clip", dom: content });
 }
 
 function getHTMLOfDocument() {
@@ -46,29 +46,29 @@ function getHTMLOfDocument() {
 
 // code taken from here: https://www.reddit.com/r/javascript/comments/27bcao/anyone_have_a_method_for_finding_all_the_hidden/
 function removeHiddenNodes(root) {
-    let nodeIterator, node,i = 0;
+    let nodeIterator, node, i = 0;
 
-    nodeIterator = document.createNodeIterator(root, NodeFilter.SHOW_ELEMENT, function(node) {
-      let nodeName = node.nodeName.toLowerCase();
-      if (nodeName === "script" || nodeName === "style" || nodeName === "noscript" || nodeName === "math") {
-        return NodeFilter.FILTER_REJECT;
-      }
-      if (node.offsetParent === void 0) {
-        return NodeFilter.FILTER_ACCEPT;
-      }
-      let computedStyle = window.getComputedStyle(node, null);
-      if (computedStyle.getPropertyValue("visibility") === "hidden" || computedStyle.getPropertyValue("display") === "none") {
-        return NodeFilter.FILTER_ACCEPT;
-      }
+    nodeIterator = document.createNodeIterator(root, NodeFilter.SHOW_ELEMENT, function (node) {
+        let nodeName = node.nodeName.toLowerCase();
+        if (nodeName === "script" || nodeName === "style" || nodeName === "noscript" || nodeName === "math") {
+            return NodeFilter.FILTER_REJECT;
+        }
+        if (node.offsetParent === void 0) {
+            return NodeFilter.FILTER_ACCEPT;
+        }
+        let computedStyle = window.getComputedStyle(node, null);
+        if (computedStyle.getPropertyValue("visibility") === "hidden" || computedStyle.getPropertyValue("display") === "none") {
+            return NodeFilter.FILTER_ACCEPT;
+        }
     });
 
     while ((node = nodeIterator.nextNode()) && ++i) {
-      if (node.parentNode instanceof HTMLElement) {
-        node.parentNode.removeChild(node);
-      }
+        if (node.parentNode instanceof HTMLElement) {
+            node.parentNode.removeChild(node);
+        }
     }
     return root
-  }
+}
 
 // code taken from here: https://stackoverflow.com/a/5084044/304786
 function getHTMLOfSelection() {
@@ -98,23 +98,23 @@ function getHTMLOfSelection() {
 
 function getSelectionAndDom() {
     try {
-      const dom = getHTMLOfDocument();
-      const selection = getHTMLOfSelection();
-      
-      if (!dom) {
-        console.error('Failed to get document HTML');
-        return null;
-      }
-      
-      return {
-        selection: selection,
-        dom: dom
-      };
+        const dom = getHTMLOfDocument();
+        const selection = getHTMLOfSelection();
+
+        if (!dom) {
+            console.error('Failed to get document HTML');
+            return null;
+        }
+
+        return {
+            selection: selection,
+            dom: dom
+        };
     } catch (error) {
-      console.error('Error in getSelectionAndDom:', error);
-      return null;
+        console.error('Error in getSelectionAndDom:', error);
+        return null;
     }
-  }
+}
 
 // This function must be called in a visible page, such as a browserAction popup
 // or a content script. Calling it in a background page has no effect!
@@ -188,10 +188,10 @@ function downloadImage(filename, url) {
     */
 }
 
-(function loadPageContextScript(){
+(function loadPageContextScript() {
     var s = document.createElement('script');
     s.src = browser.runtime.getURL('contentScript/pageContext.js');
-    (document.head||document.documentElement).appendChild(s);
+    (document.head || document.documentElement).appendChild(s);
 })()
 
 // ===== Link Picker Feature =====
@@ -456,7 +456,7 @@ function createControlPanel() {
 
 function setupLinkPickerEventListeners() {
     // Mouse move handler
-    window.linkPickerState.handlers.mousemove = function(e) {
+    window.linkPickerState.handlers.mousemove = function (e) {
         // Ignore if hovering over control panel or its children
         if (e.target.closest('#marksnip-link-picker-panel')) {
             removeHighlight();
@@ -475,7 +475,7 @@ function setupLinkPickerEventListeners() {
     };
 
     // Click handler
-    window.linkPickerState.handlers.click = function(e) {
+    window.linkPickerState.handlers.click = function (e) {
         // Ignore clicks on control panel
         if (e.target.closest('#marksnip-link-picker-panel')) {
             return;
@@ -495,7 +495,7 @@ function setupLinkPickerEventListeners() {
     };
 
     // Keyboard handler
-    window.linkPickerState.handlers.keydown = function(e) {
+    window.linkPickerState.handlers.keydown = function (e) {
         if (e.key === 'Escape') {
             e.preventDefault();
             cancelLinkPicker();

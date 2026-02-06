@@ -10,29 +10,29 @@ const progressUI = {
     count: document.getElementById('progressCount'),
     status: document.getElementById('progressStatus'),
     currentUrl: document.getElementById('currentUrl'),
-    
+
     show() {
         this.container.style.display = 'flex';
     },
-    
+
     hide() {
         this.container.style.display = 'none';
     },
-    
+
     reset() {
         this.bar.style.width = '0%';
         this.count.textContent = '0/0';
         this.status.textContent = 'Processing URLs...';
         this.currentUrl.textContent = '';
     },
-    
+
     updateProgress(current, total, url) {
         const percentage = (current / total) * 100;
         this.bar.style.width = `${percentage}%`;
         this.count.textContent = `${current}/${total}`;
         this.currentUrl.textContent = url;
     },
-    
+
     setStatus(status) {
         this.status.textContent = status;
     }
@@ -51,12 +51,12 @@ cm.on("cursorActivity", (cm) => {
     var copySelectionButton = document.getElementById("copySelection");
 
     if (somethingSelected) {
-        if(downloadSelectionButton.style.display != "block") downloadSelectionButton.style.display = "block";
-        if(copySelectionButton.style.display != "block") copySelectionButton.style.display = "block";
+        if (downloadSelectionButton.style.display != "block") downloadSelectionButton.style.display = "block";
+        if (copySelectionButton.style.display != "block") copySelectionButton.style.display = "block";
     }
     else {
-        if(downloadSelectionButton.style.display != "none") downloadSelectionButton.style.display = "none";
-        if(copySelectionButton.style.display != "none") copySelectionButton.style.display = "none";
+        if (downloadSelectionButton.style.display != "none") downloadSelectionButton.style.display = "none";
+        if (copySelectionButton.style.display != "none") copySelectionButton.style.display = "none";
     }
 });
 document.getElementById("download").addEventListener("click", download);
@@ -185,7 +185,7 @@ function normalizeUrl(url) {
     if (!/^https?:\/\//i.test(url)) {
         url = 'https://' + url;
     }
-    
+
     try {
         const urlObj = new URL(url);
         return urlObj.href;
@@ -202,7 +202,7 @@ function processUrlInput(text) {
     for (const line of lines) {
         // Try to parse as markdown link first
         const mdLink = parseMarkdownLink(line);
-        
+
         if (mdLink) {
             const normalizedUrl = normalizeUrl(mdLink.url);
             if (normalizedUrl) {
@@ -228,10 +228,10 @@ function processUrlInput(text) {
 
 async function handleBatchConversion(e) {
     e.preventDefault();
-    
+
     const urlText = document.getElementById("urlList").value;
     const urlObjects = processUrlInput(urlText);
-    
+
     if (urlObjects.length === 0) {
         showError("Please enter valid URLs or markdown links (one per line)", false);
         return;
@@ -241,37 +241,37 @@ async function handleBatchConversion(e) {
     document.getElementById("convertUrls").style.display = 'none';
     progressUI.show();
     progressUI.reset();
-    
+
     try {
         const tabs = [];
         const total = urlObjects.length;
         let current = 0;
-        
+
         console.log('Starting batch conversion...');
-        
+
         // Create and load all tabs
         for (const urlObj of urlObjects) {
             current++;
             progressUI.updateProgress(current, total, `Loading: ${urlObj.url}`);
-            
+
             console.log(`Creating tab for ${urlObj.url}`);
-            const tab = await browser.tabs.create({ 
-                url: urlObj.url, 
-                active: false 
+            const tab = await browser.tabs.create({
+                url: urlObj.url,
+                active: false
             });
-            
+
             if (urlObj.title) {
                 tab.customTitle = urlObj.title;
             }
-            
+
             tabs.push(tab);
-            
+
             // Wait for tab load
             await new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
                     reject(new Error(`Timeout loading ${urlObj.url}`));
                 }, 30000);
-                
+
                 function listener(tabId, info) {
                     if (tabId === tab.id && info.status === 'complete') {
                         clearTimeout(timeout);
@@ -293,14 +293,14 @@ async function handleBatchConversion(e) {
         // Reset progress for processing phase
         current = 0;
         progressUI.setStatus('Converting pages to Markdown...');
-        
+
         // Process each tab
         for (const tab of tabs) {
             try {
                 current++;
                 progressUI.updateProgress(current, total, `Converting: ${tab.url}`);
                 console.log(`Processing tab ${tab.id}`);
-                
+
                 const displayMdPromise = new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
                         reject(new Error('Timeout waiting for markdown generation'));
@@ -311,20 +311,20 @@ async function handleBatchConversion(e) {
                             clearTimeout(timeout);
                             browser.runtime.onMessage.removeListener(messageListener);
                             console.log(`Received markdown for tab ${tab.id}`);
-                            
+
                             if (tab.customTitle) {
                                 message.article.title = tab.customTitle;
                             }
-                            
+
                             cm.setValue(message.markdown);
                             document.getElementById("title").value = message.article.title;
                             imageList = message.imageList;
                             mdClipsFolder = message.mdClipsFolder;
-                            
+
                             resolve();
                         }
                     }
-                    
+
                     browser.runtime.onMessage.addListener(messageListener);
                 });
 
@@ -449,32 +449,36 @@ const clipSite = id => {
             return null;
         }
     })
-    .then((result) => {
-        if (result && result[0]?.result) {
-            showOrHideClipOption(result[0].result.selection);
-            let message = {
-                type: "clip",
-                dom: result[0].result.dom,
-                selection: result[0].result.selection
-            }
-            return browser.storage.sync.get(defaultOptions).then(options => {
-                browser.runtime.sendMessage({
-                    ...message,
-                    ...options
-                });
-            }).catch(err => {
-                console.error(err);
-                showError(err)
-                return browser.runtime.sendMessage({
-                    ...message,
-                    ...defaultOptions
+        .then((result) => {
+            if (result && result[0]?.result) {
+                showOrHideClipOption(result[0].result.selection);
+                let message = {
+                    type: "clip",
+                    dom: result[0].result.dom,
+                    selection: result[0].result.selection
+                }
+                return browser.storage.sync.get(defaultOptions).then(options => {
+                    browser.runtime.sendMessage({
+                        ...message,
+                        ...options
+                    });
+                }).catch(err => {
+                    console.error(err);
+                    showError(err)
+                    return browser.runtime.sendMessage({
+                        ...message,
+                        ...defaultOptions
+                    });
                 });
             });
-        }
-    }).catch(err => {
-        console.error(err);
-        showError(err)
-    });
+} else {
+    console.error("Result was null/empty", result);
+throw new Error("Content script could not be loaded. Please try reloading the page.");
+            }
+        }).catch (err => {
+    console.error("ClipSite error:", err);
+    showError(err);
+});
 }
 
 // Inject the necessary scripts - updated for Manifest V3
@@ -499,7 +503,7 @@ browser.storage.sync.get(defaultOptions).then(options => {
     document.getElementById("downloadImages").addEventListener("click", () => {
         toggleDownloadImages(options);
     });
-    
+
     return browser.tabs.query({
         currentWindow: true,
         active: true
@@ -507,24 +511,26 @@ browser.storage.sync.get(defaultOptions).then(options => {
 }).then((tabs) => {
     var id = tabs[0].id;
     var url = tabs[0].url;
-    
-    // Use scripting API instead of executeScript
+
+    // Try to inject but ignore if already exists (Firefox manifest injection)
     browser.scripting.executeScript({
         target: { tabId: id },
         files: ["/browser-polyfill.min.js"]
     })
-    .then(() => {
-        return browser.scripting.executeScript({
-            target: { tabId: id },
-            files: ["/contentScript/contentScript.js"]
+        .then(() => {
+            return browser.scripting.executeScript({
+                target: { tabId: id },
+                files: ["/contentScript/contentScript.js"]
+            });
+        })
+        .catch((error) => {
+            // Scripts might already be injected via manifest or previous run
+            console.log("Script injection skipped or failed (likely already present):", error);
+        })
+        .finally(() => {
+            console.info("Initializing MarkSnip...");
+            return clipSite(id);
         });
-    }).then(() => {
-        console.info("Successfully injected MarkSnip content script");
-        return clipSite(id);
-    }).catch((error) => {
-        console.error(error);
-        showError(error);
-    });
 });
 
 // listen for notifications from the background page
@@ -791,27 +797,53 @@ function notify(message) {
         document.getElementById("title").value = message.article.title;
         imageList = message.imageList;
         mdClipsFolder = message.mdClipsFolder;
-        
+
         // show the hidden elements
         document.getElementById("container").style.display = 'flex';
         document.getElementById("spinner").style.display = 'none';
-         // focus the download button
+        // focus the download button
         document.getElementById("download").focus();
         cm.refresh();
     }
+    else if (message.type === "display.error") {
+        document.getElementById("spinner").style.display = 'none';
+        showError(message.error);
+    }
 }
 
-function showError(err, useEditor = true) {
-    // show the hidden elements
-    document.getElementById("container").style.display = 'flex';
-    document.getElementById("spinner").style.display = 'none';
-    
-    if (useEditor) {
-        // Original behavior - show error in CodeMirror
-        cm.setValue(`Error clipping the page\n\n${err}`);
-    } else {
-        // Batch processing error - show in CodeMirror but don't disrupt UI
-        const currentContent = cm.getValue();
-        cm.setValue(`${currentContent}\n\nError: ${err}`);
+function showError(err) {
+    const container = document.getElementById("container");
+    const spinner = document.getElementById("spinner");
+
+    // Check if we're in batch mode
+    if (document.getElementById("batchContainer").style.display === 'flex') {
+        const errorContainer = document.createElement("div");
+        errorContainer.style.padding = "20px";
+        errorContainer.style.color = "red";
+        errorContainer.innerHTML = `<h3>Error</h3><p>${err.toString()}</p>`;
+        document.getElementById("batchContainer").appendChild(errorContainer);
+        return;
     }
+
+    if (container.style.display === 'none') {
+        // We are likely in the loading state
+        const errorContainer = document.createElement("div");
+        errorContainer.style.padding = "20px";
+        errorContainer.style.color = "red";
+        errorContainer.innerHTML = `<h3>Error</h3><p>${err.toString()}</p>`;
+
+        // Hide spinner
+        if (spinner) spinner.style.display = 'none';
+
+        // Append error to body if container is hidden
+        document.body.appendChild(errorContainer);
+    } else {
+        // Show in editor if UI is visible
+        if (cm) {
+            cm.setValue(`Error clipping the page\n\n${err}`);
+        } else {
+            alert(err);
+        }
+    }
+    console.error(err);
 }

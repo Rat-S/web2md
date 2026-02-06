@@ -394,8 +394,7 @@ async function ensureOffscreenDocumentExists() {
       importScripts(
         'background/turndown.js',
         'background/turndown-plugin-gfm.js',
-        'background/Readability.js',
-        'shared/logic.js'
+        'background/Readability.js'
       );
     }
   }
@@ -426,29 +425,48 @@ async function handleClipRequest(message, tabId) {
     });
   } else {
     // Firefox - process directly (Firefox allows DOM access in service workers)
-    const article = await getArticleFromDom(message.dom);
+    // Firefox - process directly (Firefox allows DOM access in service workers)
+    try {
+      console.log("🦊 Firefox direct processing started");
 
-    // Handle selection if provided
-    if (message.selection && message.clipSelection) {
-      article.content = message.selection;
+      console.log("Parsing DOM...");
+      const article = await getArticleFromDom(message.dom);
+      console.log("DOM parsed, article:", article ? "found" : "null");
+
+      // Handle selection if provided
+      if (message.selection && message.clipSelection) {
+        console.log("Using user selection");
+        article.content = message.selection;
+      }
+
+      // Convert article to markdown
+      console.log("Converting to Markdown...");
+      const { markdown, imageList } = await convertArticleToMarkdown(article);
+      console.log("Markdown converted, length:", markdown.length);
+
+      // Format title and folder
+      console.log("Formatting title...");
+      article.title = await formatTitle(article);
+      const mdClipsFolder = await formatMdClipsFolder(article);
+
+      // Send results to popup
+      console.log("Sending results to popup...");
+      await browser.runtime.sendMessage({
+        type: "display.md",
+        markdown: markdown,
+        article: article,
+        imageList: imageList,
+        mdClipsFolder: mdClipsFolder,
+        options: await getOptions()
+      });
+      console.log("Results sent");
+    } catch (error) {
+      console.error("Error in handleClipRequest (Firefox):", error);
+      await browser.runtime.sendMessage({
+        type: "display.error",
+        error: error.message || "Unknown error during clipping"
+      });
     }
-
-    // Convert article to markdown
-    const { markdown, imageList } = await convertArticleToMarkdown(article);
-
-    // Format title and folder
-    article.title = await formatTitle(article);
-    const mdClipsFolder = await formatMdClipsFolder(article);
-
-    // Send results to popup
-    await browser.runtime.sendMessage({
-      type: "display.md",
-      markdown: markdown,
-      article: article,
-      imageList: imageList,
-      mdClipsFolder: mdClipsFolder,
-      options: await getOptions()
-    });
   }
 }
 
