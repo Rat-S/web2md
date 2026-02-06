@@ -609,7 +609,7 @@ var TurndownService = (function () {
     try {
       document.implementation.createHTMLDocument('').open();
     } catch (e) {
-      if (root.ActiveXObject) useActiveX = true;
+      if (window.ActiveXObject) useActiveX = true;
     }
     return useActiveX
   }

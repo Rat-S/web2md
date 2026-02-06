@@ -1,94 +1,108 @@
 {
-  "manifest_version": 3,
-  "name": "MarkSnip - Markdown Web Clipper",
-  "version": "4.0.0",
-  "author": "Dhruv Parikh",
-  "description": "A web clipper to download articles in markdown format. Turndown & Readability are used as core libraries.",
-  "icons": {
-    "16": "icons/favicon-16x16.png",
-    "32": "icons/favicon-32x32.png",
-    "48": "icons/favicon-48x48.png",
-    "128": "icons/appicon-128x128.png",
-    "192": "icons/favicon-192x192.png",
-    "512": "icons/favicon-512x512.png"
-  },
-  "permissions": [
-    "activeTab",
-    "downloads",
-    "storage",
-    "contextMenus",
-    "clipboardWrite",
-    "scripting",
-    "offscreen"
-  ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
-  "action": {
-    "default_title": "MarkSnip",
-    "default_popup": "popup/popup.html",
-    "default_icon": {
-      "16": "icons/favicon-16x16.png",
-      "32": "icons/favicon-32x32.png",
-      "48": "icons/favicon-48x48.png",
-      "128": "icons/appicon-128x128.png"
+    "manifest_version": 3,
+    "name": "web2md",
+    "version": "4.0.0",
+    "author": "Dhruv Parikh",
+    "description": "A web clipper to download articles in markdown format. Turndown & Readability are used as core libraries.",
+    "icons": {
+        "16": "icons/favicon-16x16.png",
+        "32": "icons/favicon-32x32.png",
+        "48": "icons/favicon-48x48.png",
+        "128": "icons/appicon-128x128.png",
+        "192": "icons/favicon-192x192.png",
+        "512": "icons/favicon-512x512.png"
+    },
+    "permissions": [
+        "activeTab",
+        "downloads",
+        "storage",
+        "contextMenus",
+        "clipboardWrite",
+        "scripting"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "action": {
+        "default_title": "MarkSnip",
+        "default_popup": "popup/popup.html",
+        "default_icon": {
+            "16": "icons/favicon-16x16.png",
+            "32": "icons/favicon-32x32.png",
+            "48": "icons/favicon-48x48.png",
+            "128": "icons/appicon-128x128.png"
+        }
+    },
+    "background": {
+        "scripts": [
+            "browser-polyfill.min.js",
+            "background/moment.min.js",
+            "background/apache-mime-types.js",
+            "shared/default-options.js",
+            "shared/context-menus.js",
+            "background/turndown.js",
+            "background/turndown-plugin-gfm.js",
+            "background/Readability.js",
+            "shared/logic.js",
+            "service-worker.js"
+        ]
+    },
+    "options_ui": {
+        "page": "options/options.html",
+        "browser_style": false,
+        "open_in_tab": false
+    },
+    "commands": {
+        "_execute_action": {
+            "suggested_key": {
+                "default": "Alt+Shift+M"
+            }
+        },
+        "download_tab_as_markdown": {
+            "suggested_key": {
+                "default": "Alt+Shift+D"
+            },
+            "description": "Save current tab as Markdown"
+        },
+        "copy_tab_as_markdown": {
+            "suggested_key": {
+                "default": "Alt+Shift+C"
+            },
+            "description": "Copy current tab as Markdown to the clipboard"
+        },
+        "copy_selection_as_markdown": {
+            "description": "Copy current selection as Markdown to the clipboard"
+        },
+        "copy_tab_as_markdown_link": {
+            "suggested_key": {
+                "default": "Alt+Shift+L"
+            },
+            "description": "Copy current tab URL as Markdown link to the clipboard"
+        },
+        "copy_selected_tab_as_markdown_link": {
+            "description": "Copy selected tabs URL as Markdown link to the clipboard"
+        },
+        "copy_selection_to_obsidian": {
+            "description": "Copy current selection as Markdown to Obsidian"
+        },
+        "copy_tab_to_obsidian": {
+            "description": "Copy current tab as Markdown to Obsidian"
+        }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "contentScript/pageContext.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ],
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "{1c5e4c6f-5530-49a3-b216-31ce7d744db0}",
+            "strict_min_version": "65.0"
+        }
     }
-  },
-  "background": {
-    "service_worker": "service-worker.js"
-  },
-  "options_ui": {
-    "page": "options/options.html",
-    "browser_style": false,
-    "open_in_tab": false
-  },
-  "commands": {
-    "_execute_action": {
-      "suggested_key": {
-        "default": "Alt+Shift+M"
-      }
-    },
-    "download_tab_as_markdown": {
-      "suggested_key": {
-        "default": "Alt+Shift+D"
-      },
-      "description": "Save current tab as Markdown"
-    },
-    "copy_tab_as_markdown": {
-      "suggested_key": {
-        "default": "Alt+Shift+C"
-      },
-      "description": "Copy current tab as Markdown to the clipboard"
-    },
-    "copy_selection_as_markdown": {
-      "description": "Copy current selection as Markdown to the clipboard"
-    },
-    "copy_tab_as_markdown_link": {
-      "suggested_key": {
-        "default": "Alt+Shift+L"
-      },
-      "description": "Copy current tab URL as Markdown link to the clipboard"
-    },
-    "copy_selected_tab_as_markdown_link": {
-      "description": "Copy selected tabs URL as Markdown link to the clipboard"
-    },
-    "copy_selection_to_obsidian": {
-      "description": "Copy current selection as Markdown to Obsidian"
-    },
-    "copy_tab_to_obsidian": {
-      "description": "Copy current tab as Markdown to Obsidian"
-    }
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["contentScript/pageContext.js"],
-      "matches": ["<all_urls>"]
-    }
-  ],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "{1c5e4c6f-5530-49a3-b216-31ce7d744db0}",
-      "strict_min_version": "65.0"
-    }
-  }
 }

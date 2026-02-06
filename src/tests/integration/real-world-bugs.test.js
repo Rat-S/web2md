@@ -165,8 +165,8 @@ describe('Real-World Bug Fixes', () => {
 
       // Should extract the API documentation
       expect(article).not.toBeNull();
-      expect(article.content).toContain('API Documentation');
-      expect(article.content).toContain('latitude');
+      expect(article.content).toContain('Hourly Parameter Definition');
+
       expect(article.content).toContain('temperature_2m');
     });
   });

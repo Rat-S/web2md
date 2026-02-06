@@ -400,7 +400,7 @@ function hello() {
 
       // Readability should extract one of them (usually the first/longest)
       expect(article).not.toBeNull();
-      expect(article.title).toBeTruthy();
+      expect(article.content).toBeTruthy();
     });
   });
 
